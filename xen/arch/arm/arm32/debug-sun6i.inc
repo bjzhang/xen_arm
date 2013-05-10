@@ -18,36 +18,29 @@
 
 #define EARLY_UART_BASE_ADDRESS 0x01c28000
 
-/* A31 UART initialization
+/* sun6i UART initialization
  * rb: register which contains the UART base address
  * rc: scratch register 1
  * rd: scratch register 2 (unused here) */
 .macro early_uart_init rb, rc, rd
-        mov   \rc, #0x0
-        str   \rc, [\rb, #0x28]     /* -> UARTFBRD (Baud divisor fraction) */
-        mov   \rc, #0x4             /* 7.3728MHz / 0x4 == 16 * 115200 */
-        str   \rc, [\rb, #0x24]     /* -> UARTIBRD (Baud divisor integer) */
-        mov   \rc, #0x60            /* 8n1 */
-        str   \rc, [\rb, #0x2C]     /* -> UARTLCR_H (Line control) */
-        ldr   \rc, =0x00000301      /* RXE | TXE | UARTEN */
-        str   \rc, [\rb, #0x30]     /* -> UARTCR (Control Register) */
+/* assume the uart already init by u-boot */
 .endm
 
-/* PL011 UART wait UART to be ready to transmit
+/* sun6i UART wait UART to be ready to transmit
  * rb: register which contains the UART base address
  * rc: scratch register */
 .macro early_uart_ready rb, rc
 1:
-        ldr   \rc, [\rb, #0x18]     /* <- UARTFR (Flag register) */
-        tst   \rc, #0x8             /* Check BUSY bit */
-        bne   1b                    /* Wait for the UART to be ready */
+        ldr   \rc, [\rb, #0x7c]     /* <- UART_USR (Status Register) */
+        tst   \rc, #0x2             /* Check BUSY bit */
+        beq   1b                    /* Wait for the UART to be ready */
 .endm
 
-/* PL011 UART transmit character
+/* sun6i UART transmit character
  * rb: register which contains the UART base address
  * rt: register which contains the character to transmit */
 .macro early_uart_transmit rb, rt
-        str   \rt, [\rb]            /* -> UARTDR (Data Register) */
+        str   \rt, [\rb]            /* -> UART_THR (Transmit Holding Register) */
 .endm
 
 /*
