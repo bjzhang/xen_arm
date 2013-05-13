@@ -30,11 +30,10 @@
  * rb: register which contains the UART base address
  * rc: scratch register */
 .macro early_uart_ready rb, rc
-/* 1:
-        ldr   \rc, [\rb, #0x7c]     / <- UART_USR (Status Register) /
-        tst   \rc, #0x2             / Check BUSY bit /
-        bne   1b                    / Wait for the UART to be ready /
-*/
+1:
+        ldr   \rc, [\rb, #0x7c]     /* <- UART_USR (Status Register) */
+        tst   \rc, #0x2             /* Check BUSY bit */
+        beq   1b                    /* Wait for the UART to be ready */
 .endm
 
 /* sun6i UART transmit character
