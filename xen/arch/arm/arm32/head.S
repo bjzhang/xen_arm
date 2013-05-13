@@ -244,6 +244,11 @@ skip_bss:
         bne   pt_ready
 
         /* console fixmap */
+        PRINT("- console fixmap -\r\n")
+        PRINT("- phy: r10: ")
+        mov   r0, r10
+        bl    putn
+        PRINT(" -\r\n")
 #if defined(EARLY_PRINTK)
         ldr   r1, =xen_fixmap
         add   r1, r1, r10            /* r1 := paddr (xen_fixmap) */
@@ -361,10 +366,31 @@ launch:
         ldr   sp, [r0]
         add   sp, #STACK_SIZE        /* (which grows down from the top). */
         sub   sp, #CPUINFO_sizeof    /* Make room for CPU save record */
+        PRINT("- stack ")
+        mov   r0, sp
+        bl    putn
+        PRINT(" -\r\n")
+        PRINT("- pc ")
+        mov   r0, pc
+        bl    putn
+        PRINT(" -\r\n")
+        PRINT("- read stack ")
+        ldr   r0, [sp]
+        bl    putn
+        PRINT(" done -\r\n")
+        PRINT("- write stack ")
+        ldr   r0, [sp]
+        str   r0, [sp]
+        bl    putn
+        PRINT(" done -\r\n")
         mov   r0, r10                /* Marshal args: - phys_offset */
         mov   r1, r8                 /*               - DTB address */
         movs  r2, r12                /*               - CPU ID */
         beq   start_xen              /* and disappear into the land of C */
+        PRINT("- start_secondary -\r\n")
+        mov   r0, r10                /* Marshal args: - phys_offset */
+        mov   r1, r8                 /*               - DTB address */
+        movs  r2, r12                /*               - CPU ID */
         b     start_secondary        /* (to the appropriate entry point) */
 
 /* Fail-stop

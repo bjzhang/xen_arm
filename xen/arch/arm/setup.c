@@ -416,24 +416,32 @@ void __init start_xen(unsigned long boot_phys_offset,
     size_t fdt_size;
     int cpus, i;
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     setup_cache();
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     smp_clear_cpu_maps();
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     device_tree_flattened = (void *)BOOT_MISC_VIRT_START
         + (fdt_paddr & ((1 << SECOND_SHIFT) - 1));
     fdt_size = device_tree_early_init(device_tree_flattened);
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpus = smp_get_max_cpus();
     cmdline_parse(device_tree_bootargs(device_tree_flattened));
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     setup_pagetables(boot_phys_offset, get_xen_paddr());
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     setup_mm(fdt_paddr, fdt_size);
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     vm_init();
     dt_unflatten_host_device_tree();
     dt_irq_xlate = gic_irq_xlate;
 
+    early_printk("%s:%s\n", __FUNCTION__, __LINE__);
     dt_uart_init();
     console_init_preirq();
 
