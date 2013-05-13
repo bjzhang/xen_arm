@@ -169,8 +169,8 @@ boot_cpu:
         add   pc, r0, r10            /* Call PA of function */
 
 hyp:
-        mrs   r0, cpsr               /* Copy the CPSR */
         PRINT("- CPSR ")
+        mrs   r0, cpsr               /* Copy the CPSR */
         bl    putn
         PRINT(" -\r\n")
 
