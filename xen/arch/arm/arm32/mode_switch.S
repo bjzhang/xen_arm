@@ -21,6 +21,7 @@
 #include <asm/page.h>
 #include <asm/platforms/vexpress.h>
 #include <asm/platforms/exynos5.h>
+#include <asm/platforms/sun6i.h>
 #include <asm/asm_defns.h>
 #include <asm/gic.h>
 
