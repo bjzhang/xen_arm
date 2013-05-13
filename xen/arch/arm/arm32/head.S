@@ -219,7 +219,7 @@ skip_bss:
          * PT walks use Outer-Shareable accesses,
          * PT walks are write-back, write-allocate in both cache levels,
          * Full 32-bit address space goes through this table. */
-        ldr   r0, =0x40002500
+        ldr   r0, =0x80002500
         mcr   CP32(r0, HTCR)
 
         /* Set up the HSCTLR:
