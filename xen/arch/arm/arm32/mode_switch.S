@@ -94,10 +94,15 @@ enter_hyp_mode:
         /* By default load Arndale defaults values */
         ldr   r0, =EXYNOS5_TIMER_FREQUENCY  /* r0 := timer's frequency */
         ldr   r1, =EXYNOS5_GIC_BASE_ADDRESS /* r1 := GIC base address */
-        /* If it's not the Arndale machine ID, load VE values */
         teq   r5, r2
-        ldrne r0, =V2M_TIMER_FREQUENCY
-        ldrne r1, =V2M_GIC_BASE_ADDRESS
+        /* If it's not the Arndale machine ID, try sun6i */
+        ldrne r2, =MACH_TYPE_SUN6I          /* r4 := sun6i machine ID */
+        ldrne r0, =SUN6I_TIMER_FREQUENCY  /* r0 := timer's frequency */
+        ldrne r1, =SUN6I_GIC_BASE_ADDRESS /* r1 := GIC base address */
+        /* If it's not the sun6i machine ID, load VE values */
+/*        teq   r5, r2 */
+/*        ldrne r0, =V2M_TIMER_FREQUENCY */
+/*        ldrne r1, =V2M_GIC_BASE_ADDRESS */
 
         /* Ugly: the system timer's frequency register is only
          * programmable in Secure state.  Since we don't know where its

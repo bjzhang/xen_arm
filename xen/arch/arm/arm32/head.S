@@ -168,6 +168,10 @@ boot_cpu:
         add   pc, r0, r10            /* Call PA of function */
 
 hyp:
+        mrs   r0, cpsr               /* Copy the CPSR */
+        PRINT("- CPSR ")
+        bl    putn
+        PRINT(" -\r\n")
 
         /* Zero BSS On the boot CPU to avoid nasty surprises */
         teq   r12, #0
