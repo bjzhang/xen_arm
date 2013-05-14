@@ -420,7 +420,7 @@ void __init start_xen(unsigned long boot_phys_offset,
     setup_cache();
 
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
-    smp_clear_cpu_maps();
+    //smp_clear_cpu_maps();
 
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     device_tree_flattened = (void *)BOOT_MISC_VIRT_START
