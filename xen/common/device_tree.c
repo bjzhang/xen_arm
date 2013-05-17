@@ -520,9 +520,13 @@ size_t __init device_tree_early_init(const void *fdt)
 {
     int ret;
 
+    early_printk("fdt<%p>\n", fdt);
+    early_printk("fdt[0]<%x>\n", *(unsigned int*)fdt);
     ret = fdt_check_header(fdt);
-    if ( ret < 0 )
+    if ( ret < 0 ) {
+        early_printk("ret<%d>\n", ret);
         early_panic("No valid device tree\n");
+    }
 
     device_tree_for_each_node((void *)fdt, early_scan_node, NULL);
     early_print_info();

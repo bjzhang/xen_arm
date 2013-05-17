@@ -90,6 +90,10 @@ past_zImage:
         ldr   r8, =_sdtb
         add   r8, r10                /* r8 := paddr(DTB) */
 #endif
+        PRINT("- dtb address")
+        mov   r0, r8
+        bl    putn
+        PRINT(" -\r\n")
 
         /* Are we the boot CPU? */
         mov   r12, #0                /* r12 := CPU ID */
