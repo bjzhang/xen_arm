@@ -86,11 +86,17 @@ past_zImage:
         sub   r10, r9, r0            /* r10 := phys-offset */
 
         /* Using the DTB in the .dtb section? */
+#ifdef EARLY_PRINTK
+        ldr   r11, =EARLY_UART_BASE_ADDRESS  /* r11 := UART base address */
+        teq   r12, #0                   /* CPU 0 sets up the UART too */
+        bleq  init_uart
+#endif
 #ifdef CONFIG_DTB_FILE
         ldr   r8, =_sdtb
         add   r8, r10                /* r8 := paddr(DTB) */
+        PRINT("- get dtb from xen image -\r\n")
 #endif
-        PRINT("- dtb address")
+        PRINT("- dtb address ")
         mov   r0, r8
         bl    putn
         PRINT(" -\r\n")
@@ -115,15 +121,10 @@ past_zImage:
         bne   1b
 
 boot_cpu:
-#ifdef EARLY_PRINTK
-        ldr   r11, =EARLY_UART_BASE_ADDRESS  /* r11 := UART base address */
-        teq   r12, #0                   /* CPU 0 sets up the UART too */
-        bleq  init_uart
         PRINT("- CPU ")
         mov   r0, r12
         bl    putn
         PRINT(" booting -\r\n")
-#endif
         /* Secondary CPUs doesn't have machine ID
          *  - Store machine ID on boot CPU
          *  - Load machine ID on secondary CPUs

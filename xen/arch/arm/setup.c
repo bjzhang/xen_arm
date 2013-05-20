@@ -425,6 +425,7 @@ void __init start_xen(unsigned long boot_phys_offset,
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     device_tree_flattened = (void *)BOOT_MISC_VIRT_START
         + (fdt_paddr & ((1 << SECOND_SHIFT) - 1));
+    early_printk("BOOT_MISC_VIRT_START<%x>, fdt_paddr<%x>, device_tree_flattened<%x>\n", BOOT_MISC_VIRT_START, fdt_paddr, device_tree_flattened);
     fdt_size = device_tree_early_init(device_tree_flattened);
 
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);

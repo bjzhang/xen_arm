@@ -239,6 +239,7 @@ int __init device_tree_for_each_node(const void *fdt,
     {
         const char *name = fdt_get_name(fdt, node, NULL);
 
+        early_printk("%s:%d. node<%x>, depth<%d>.\n", __FUNCTION__, __LINE__, node, depth);
         if ( depth >= DEVICE_TREE_MAX_DEPTH )
         {
             dt_printk("Warning: device tree node `%s' is nested too deep\n",
@@ -528,6 +529,7 @@ size_t __init device_tree_early_init(const void *fdt)
         early_panic("No valid device tree\n");
     }
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     device_tree_for_each_node((void *)fdt, early_scan_node, NULL);
     early_print_info();
 
