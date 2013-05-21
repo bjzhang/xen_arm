@@ -77,6 +77,23 @@ static void setup_cpu_sibling_map(int cpu)
     cpumask_set_cpu(cpu, per_cpu(cpu_core_mask, cpu));
 }
 
+static unsigned int cpumask_check_debug(unsigned int cpu)
+{
+    early_printk("cpu<%d>, nr_cpu_ids<%d>\n", cpu, nr_cpu_ids);
+	ASSERT(cpu < nr_cpu_ids);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+	return cpu;
+}
+
+static void cpumask_set_cpu_debug(int cpu, volatile cpumask_t *dstp)
+{
+    unsigned int return_cpu;
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    return_cpu = cpumask_check_debug(cpu);
+    early_printk("dstp<%x>, bits<%x, %x, %x, %x, %x>\n", dstp, dstp->bits, dstp->bits[0], dstp->bits[1], dstp->bits[2], dstp->bits[3]);
+	set_bit(return_cpu, dstp->bits);
+}
+
 void __init
 smp_clear_cpu_maps (void)
 {
@@ -85,9 +102,9 @@ smp_clear_cpu_maps (void)
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpumask_clear(&cpu_online_map);
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
-    cpumask_set_cpu(0, &cpu_online_map);
+    cpumask_set_cpu_debug(0, &cpu_online_map);
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
-    cpumask_set_cpu(0, &cpu_possible_map);
+    cpumask_set_cpu_debug(0, &cpu_possible_map);
     early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 }
 

@@ -235,7 +235,8 @@ skip_bss:
          * I-cache enabled,
          * Alignment checking enabled,
          * MMU translation disabled (for now). */
-        ldr   r0, =(HSCTLR_BASE|SCTLR_A)
+/*        ldr   r0, =(HSCTLR_BASE|SCTLR_A) */
+        ldr   r0, =(HSCTLR_BASE)
         mcr   CP32(r0, HSCTLR)
 
         /* Write Xen's PT's paddr into the HTTBR */
@@ -371,6 +372,7 @@ launch:
         ldr   sp, [r0]
         add   sp, #STACK_SIZE        /* (which grows down from the top). */
         sub   sp, #CPUINFO_sizeof    /* Make room for CPU save record */
+        
 /*        PRINT("- stack ")*/
 /*        mov   r0, sp*/
 /*        bl    putn*/
