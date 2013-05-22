@@ -2,7 +2,7 @@
 
 #if __LINUX_ARM_ARCH__ >= 6
 	.macro	bitop, instr
-/*	ands	ip, r1, #3
+	ands	ip, r1, #3
 	strneb	r1, [ip]		@ assert word-aligned
 	mov	r2, #1
 	and	r3, r0, #31		@ Get bit offset
@@ -13,7 +13,7 @@
 	\instr	r2, r2, r3
 	strex	r0, r2, [r1]
 	cmp	r0, #0
-	bne	1b */
+	bne	1b 
 	bx	lr
 	.endm
 

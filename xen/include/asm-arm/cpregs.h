@@ -195,6 +195,7 @@
 
 /* CP15 CR12:  */
 #define VBAR            p15,0,c12,c0,0  /* Vector Base Address Register */
+#define MVBAR           p15,0,c12,c0,1  /* Monitor Vector Base Address Register */
 #define HVBAR           p15,4,c12,c0,0  /* Hyp. Vector Base Address Register */
 
 /* CP15 CR13:  */
