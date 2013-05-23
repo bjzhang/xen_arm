@@ -97,15 +97,15 @@ static void setup_cpu_sibling_map(int cpu)
 void __init
 smp_clear_cpu_maps (void)
 {
-//    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpumask_clear(&cpu_possible_map);
-//    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpumask_clear(&cpu_online_map);
-//    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpumask_set_cpu(0, &cpu_online_map);
-//    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cpumask_set_cpu(0, &cpu_possible_map);
-//    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 }
 
 int __init
