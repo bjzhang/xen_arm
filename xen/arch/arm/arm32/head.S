@@ -63,7 +63,7 @@ start:
         /* zImage magic header, see:
          * http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e309
          */
-#define VECTOR
+/*#define VECTOR*/
 #ifdef VECTOR
 _start: b	reset
         ldr	pc, _undefined_instruction
@@ -73,20 +73,20 @@ _start: b	reset
         ldr	pc, _not_used
         ldr	pc, _irq
         ldr	pc, _fiq
-/*_undefined_instruction: .word undefined_instruction
-_hyper_call:            .word hyper_call
-_prefetch_abort:        .word prefetch_abort
-_data_abort:            .word data_abort
-_not_used:              .word not_used
-_irq:                   .word irq
-_fiq:                   .word fiq*/
-_undefined_instruction: .word 0x40200700
+_undefined_instruction: .word (0x00000000 + undefined_instruction)
+_hyper_call:            .word (0x00000000 + hyper_call)
+_prefetch_abort:        .word (0x00000000 + prefetch_abort)
+_data_abort:            .word (0x00000000 + data_abort)
+_not_used:              .word (0x00000000 + not_used)
+_irq:                   .word (0x00000000 + irq)
+_fiq:                   .word (0x00000000 + fiq)
+/*_undefined_instruction: .word 0x40200700
 _hyper_call:            .word 0x40200740
 _prefetch_abort:        .word 0x40200780
 _data_abort:            .word 0x402007c0
 _not_used:              .word 0x40200800
 _irq:                   .word 0x40200820
-_fiq:                   .word 0x40200840
+_fiq:                   .word 0x40200840 */
 _pad:                   .word 0x12345678 /* now 16*4=64 */
 reset:
 #else
@@ -114,20 +114,10 @@ past_zImage:
         sub   r10, r9, r0            /* r10 := phys-offset */
 
         /* Using the DTB in the .dtb section? */
-#ifdef EARLY_PRINTK
-        ldr   r11, =EARLY_UART_BASE_ADDRESS  /* r11 := UART base address */
-        teq   r12, #0                   /* CPU 0 sets up the UART too */
-        bleq  init_uart
-#endif
 #ifdef CONFIG_DTB_FILE
         ldr   r8, =_sdtb
         add   r8, r10                /* r8 := paddr(DTB) */
-        PRINT("- get dtb from xen image -\r\n")
 #endif
-        PRINT("- dtb address ")
-        mov   r0, r8
-        bl    putn
-        PRINT(" -\r\n")
 
         /* Are we the boot CPU? */
         mov   r12, #0                /* r12 := CPU ID */
@@ -149,10 +139,15 @@ past_zImage:
         bne   1b
 
 boot_cpu:
+#ifdef EARLY_PRINTK
+        ldr   r11, =EARLY_UART_BASE_ADDRESS  /* r11 := UART base address */
+        teq   r12, #0                   /* CPU 0 sets up the UART too */
+        bleq  init_uart
         PRINT("- CPU ")
         mov   r0, r12
         bl    putn
         PRINT(" booting -\r\n")
+#endif
         /* Secondary CPUs doesn't have machine ID
          *  - Store machine ID on boot CPU
          *  - Load machine ID on secondary CPUs
@@ -238,7 +233,7 @@ skip_bss:
         ldr   r1, =(CORTEX_A7_ID)
         teq   r0, r1
         bleq  cortex_a15_init
-        PRINT("- WARNING: using cortex_a15_init for Cortex-A7 -\r\n")
+/*        PRINT("- WARNING: using cortex_a15_init for Cortex-A7 -\r\n") */
 
         /* Set up memory attribute type tables */
         ldr   r0, =MAIR0VAL
@@ -263,8 +258,8 @@ skip_bss:
          * I-cache enabled,
          * Alignment checking enabled,
          * MMU translation disabled (for now). */
-/*        ldr   r0, =(HSCTLR_BASE|SCTLR_A) */
-        ldr   r0, =(HSCTLR_BASE)
+        ldr   r0, =(HSCTLR_BASE|SCTLR_A)
+/*        ldr   r0, =(HSCTLR_BASE)*/
         mcr   CP32(r0, HSCTLR)
 
         /* Write Xen's PT's paddr into the HTTBR */
@@ -407,35 +402,39 @@ launch:
         bl    putn
         PRINT(" -\r\n")
         PRINT("- current VBAR ")
-        mcr   CP32(r0, VBAR)
+        mrc   CP32(r0, VBAR)
         bl    putn
         PRINT(" -\r\n")
-        ldr   r0, =0x40200000
+        ldr   r0, =0x200000
         dsb
         isb
-        mrc   CP32(r0, VBAR)
+        mcr   CP32(r0, VBAR)
         dsb
         isb
         PRINT("- VBAR ")
-        mcr   CP32(r0, VBAR)
+        mrc   CP32(r0, VBAR)
         bl    putn
         PRINT(" -\r\n")
         PRINT("- current HVBAR ")
-        mcr   CP32(r0, HVBAR)
+        mrc   CP32(r0, HVBAR)
         bl    putn
         PRINT(" -\r\n")
 /*        ldr   r0, =start */
-        ldr   r0, =0x40200000
+        ldr   r0, =0x200000
         dsb
         isb
-        mrc   CP32(r0, HVBAR)
+        mcr   CP32(r0, HVBAR)
         dsb
         isb
         PRINT("- HVBAR ")
-        mcr   CP32(r0, HVBAR)
+        mrc   CP32(r0, HVBAR)
         bl    putn
         PRINT(" -\r\n")
-        mov   r0, #0xf0000000
+        PRINT("- pc -")
+        mov   r0, pc
+        bl    putn
+        PRINT(" -\r\n")
+        ldr   r0, test_num
         str   r0, [r0]
 #endif 
 /*        PRINT("- stack ")*/
@@ -459,10 +458,6 @@ launch:
         mov   r1, r8                 /*               - DTB address */
         movs  r2, r12                /*               - CPU ID */
         beq   start_xen              /* and disappear into the land of C */
-        PRINT("- start_secondary -\r\n")
-        mov   r0, r10                /* Marshal args: - phys_offset */
-        mov   r1, r8                 /*               - DTB address */
-        movs  r2, r12                /*               - CPU ID */
         b     start_secondary        /* (to the appropriate entry point) */
 
 /* Fail-stop
@@ -471,6 +466,9 @@ fail:   PRINT("- Boot failed -\r\n")
 1:      wfe
         b     1b
 
+#ifdef VECTOR
+test_num:        .word 0x2d4234
+#endif
 
 #ifdef EARLY_PRINTK
 /* Bring up the UART.
@@ -533,40 +531,56 @@ machine_id: .word 0x0
 /*
  * exception handlers
  */
-	.align	5
+        .align	5
 undefined_instruction:
         PRINT("- undefined_instruction -\r\n")
-	b	undefined_instruction
+1:      b   1b
 
-	.align	5
+        .align	5
 hyper_call:
         PRINT("- hyper_call -\r\n")
-	b	hyper_call
+1:      b   1b
 
-	.align	5
+        .align	5
 prefetch_abort:
         PRINT("- prefetch_abort -\r\n")
-	b	prefetch_abort
+        PRINT("- IFSR ")
+        mcr   CP32(r0, IFSR)
+        bl    putn
+        PRINT(" -\r\n")
+        PRINT("- HSR -\r\n")
+        mcr   CP32(r0, HSR)
+        bl    putn
+        PRINT(" -\r\n")
+1:      b   1b
 
-	.align	5
+        .align	5
 data_abort:
         PRINT("- data_abort -\r\n")
-	b	data_abort
+        PRINT("- DFSR ")
+        mcr   CP32(r0, DFSR)
+        bl    putn
+        PRINT(" -\r\n")
+        PRINT("- HSR -\r\n")
+        mcr   CP32(r0, HSR)
+        bl    putn
+        PRINT(" -\r\n")
+1:      b   1b
 
-	.align	5
+        .align	5
 not_used:
         PRINT("- not_used -\r\n")
-	b	not_used
+1:      b   1b
 
-	.align	5
+        .align	5
 irq:
         PRINT("- irq -\r\n")
-	b	irq
+1:      b   1b
 
-	.align	5
+        .align	5
 fiq:
         PRINT("- fiq -\r\n")
-	b	fiq
+1:      b   1b
 #endif 
 
 /*

@@ -239,7 +239,6 @@ int __init device_tree_for_each_node(const void *fdt,
     {
         const char *name = fdt_get_name(fdt, node, NULL);
 
-        early_printk("%s:%d. node<%x>, name<%s>, depth<%d>.\n", __FUNCTION__, __LINE__, node, name, depth);
         if ( depth >= DEVICE_TREE_MAX_DEPTH )
         {
             dt_printk("Warning: device tree node `%s' is nested too deep\n",
@@ -415,7 +414,6 @@ static void __init process_cpu_node(const void *fdt, int node,
     const u32 *cell;
     paddr_t start, size;
 
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     if ( address_cells != 1 || size_cells != 0 )
     {
         early_printk("fdt: node `%s': invalid #address-cells or #size-cells",
@@ -423,22 +421,17 @@ static void __init process_cpu_node(const void *fdt, int node,
         return;
     }
 
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     prop = fdt_get_property(fdt, node, "reg", NULL);
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     if ( !prop )
     {
         early_printk("fdt: node `%s': missing `reg' property\n", name);
         return;
     }
 
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     cell = (const u32 *)prop->data;
     device_tree_get_reg(&cell, address_cells, size_cells, &start, &size);
-    early_printk("%s:%d. start<%x>, size<%x>\n", __FUNCTION__, __LINE__, start, size);
 
     cpumask_set_cpu(start, &cpu_possible_map);
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 }
 
 static void __init process_multiboot_node(const void *fdt, int node,
@@ -488,17 +481,12 @@ static int __init early_scan_node(const void *fdt,
                                   u32 address_cells, u32 size_cells,
                                   void *data)
 {
-    if ( device_tree_node_matches(fdt, node, "memory") ) {
-        early_printk("memory node\n");
+    if ( device_tree_node_matches(fdt, node, "memory") )
         process_memory_node(fdt, node, name, address_cells, size_cells);
-    } else if ( device_tree_type_matches(fdt, node, "cpu") ) {
-        early_printk("cpu node\n");
+    else if ( device_tree_type_matches(fdt, node, "cpu") )
         process_cpu_node(fdt, node, name, address_cells, size_cells);
-    } else if ( device_tree_node_compatible(fdt, node, "xen,multiboot-module" ) ) {
-        early_printk("xen,multiboot-module node\n");
+    else if ( device_tree_node_compatible(fdt, node, "xen,multiboot-module" ) )
         process_multiboot_node(fdt, node, name, address_cells, size_cells);
-    }
-    early_printk("%s return\n", __FUNCTION__);
 
     return 0;
 }
@@ -532,15 +520,10 @@ size_t __init device_tree_early_init(const void *fdt)
 {
     int ret;
 
-    early_printk("fdt<%p>\n", fdt);
-    early_printk("fdt[0]<%x>\n", *(unsigned int*)fdt);
     ret = fdt_check_header(fdt);
-    if ( ret < 0 ) {
-        early_printk("ret<%d>\n", ret);
+    if ( ret < 0 )
         early_panic("No valid device tree\n");
-    }
 
-    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     device_tree_for_each_node((void *)fdt, early_scan_node, NULL);
     early_print_info();
 

@@ -317,7 +317,7 @@ void __cpuinit setup_virt_paging(void)
      * SL0=01 (Level-1)
      * T0SZ=(1)1000 = -8 (40 bit physical addresses)
      */
-    WRITE_SYSREG32(0x40002558, VTCR_EL2); isb();
+    WRITE_SYSREG32(0x80002558, VTCR_EL2); isb();
 }
 
 /* This needs to be a macro to stop the compiler spilling to the stack

@@ -13,7 +13,7 @@
 	\instr	r2, r2, r3
 	strex	r0, r2, [r1]
 	cmp	r0, #0
-	bne	1b 
+	bne	1b
 	bx	lr
 	.endm
 
