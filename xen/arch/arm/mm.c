@@ -39,6 +39,7 @@
 #include <xen/vmap.h>
 #include <xsm/xsm.h>
 #include <xen/pfn.h>
+#include <asm/early_printk.h>
 
 struct domain *dom_xen, *dom_io, *dom_cow;
 
@@ -337,12 +338,18 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
     unsigned long dest_va;
     lpae_t pte, *p;
     int i;
+    unsigned long mfn; //debug
+    lpae_t *p_debug;   //debug
 
     /* Map the destination in the boot misc area. */
     dest_va = BOOT_MISC_VIRT_START;
-    pte = mfn_to_xen_entry(xen_paddr >> PAGE_SHIFT);
-    write_pte(xen_second + second_table_offset(dest_va), pte);
+    mfn = xen_paddr >> PAGE_SHIFT;
+    pte = mfn_to_xen_entry(mfn);
+    p_debug = xen_second + second_table_offset(dest_va);
+    early_printk("dest_va<%x>, mfn<%x>, pte<%x>, p_debug<%x>\n", dest_va, mfn, pte, p_debug);
+    write_pte(p_debug, pte);
     flush_xen_data_tlb_range_va(dest_va, SECOND_SIZE);
+    early_printk("flush xen data tlb start<%x>, size<%x>\n", dest_va, SECOND_SIZE);
 
     /* Calculate virt-to-phys offset for the new location */
     phys_offset = xen_paddr - (unsigned long) _start;
@@ -373,23 +380,31 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
         if ( p[i].pt.valid )
             p[i].pt.base += (phys_offset - boot_phys_offset) >> PAGE_SHIFT;
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     /* Change pagetables to the copy in the relocated Xen */
     boot_ttbr = (uintptr_t) boot_pgtable + phys_offset;
     flush_xen_dcache(boot_ttbr);
     flush_xen_dcache_va_range((void*)dest_va, _end - _start);
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     WRITE_TTBR(boot_ttbr);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 
     /* Undo the temporary map */
     pte.bits = 0;
     write_pte(xen_second + second_table_offset(dest_va), pte);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     flush_xen_text_tlb();
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 
     /* Link in the fixmap pagetable */
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     pte = mfn_to_xen_entry((((unsigned long) xen_fixmap) + phys_offset)
                            >> PAGE_SHIFT);
     pte.pt.table = 1;
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     write_pte(xen_second + second_table_offset(FIXMAP_ADDR(0)), pte);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     /*
      * No flush required here. Individual flushes are done in
      * set_fixmap as entries are used.
@@ -416,14 +431,19 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
     }
     pte = mfn_to_xen_entry((((unsigned long) xen_xenmap) + phys_offset)
                            >> PAGE_SHIFT);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     pte.pt.table = 1;
     write_pte(xen_second + second_linear_offset(XEN_VIRT_START), pte);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     /* TLBFLUSH and ISB would be needed here, but wait until we set WXN */
 
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     /* From now on, no mapping may be both writable and executable. */
     WRITE_SYSREG32(READ_SYSREG32(SCTLR_EL2) | SCTLR_WXN, SCTLR_EL2);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     /* Flush everything after setting WXN bit. */
     flush_xen_text_tlb();
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 
     per_cpu(xen_pgtable, 0) = boot_pgtable;
     per_cpu(xen_dommap, 0) = xen_second +
@@ -431,9 +451,12 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
 
     /* Some of these slots may have been used during start of day and/or
      * relocation. Make sure they are clear now. */
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     memset(this_cpu(xen_dommap), 0, DOMHEAP_SECOND_PAGES*PAGE_SIZE);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
     flush_xen_dcache_va_range(this_cpu(xen_dommap),
                               DOMHEAP_SECOND_PAGES*PAGE_SIZE);
+    early_printk("%s:%d\n", __FUNCTION__, __LINE__);
 }
 
 int init_secondary_pagetables(int cpu)

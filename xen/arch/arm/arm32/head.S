@@ -63,7 +63,7 @@ start:
         /* zImage magic header, see:
          * http://www.simtec.co.uk/products/SWLINUX/files/booting_article.html#d0e309
          */
-/*#define VECTOR*/
+#define VECTOR
 #ifdef VECTOR
 _start: b	reset
         ldr	pc, _undefined_instruction
@@ -434,8 +434,10 @@ launch:
         mov   r0, pc
         bl    putn
         PRINT(" -\r\n")
+#ifdef DATA_ABORT_TEST
         ldr   r0, test_num
         str   r0, [r0]
+#endif
 #endif 
 /*        PRINT("- stack ")*/
 /*        mov   r0, sp*/
@@ -467,7 +469,7 @@ fail:   PRINT("- Boot failed -\r\n")
         b     1b
 
 #ifdef VECTOR
-test_num:        .word 0x2d4234
+test_num:        .word 0xf0000000
 #endif
 
 #ifdef EARLY_PRINTK
@@ -548,7 +550,7 @@ prefetch_abort:
         mcr   CP32(r0, IFSR)
         bl    putn
         PRINT(" -\r\n")
-        PRINT("- HSR -\r\n")
+        PRINT("- HSR ")
         mcr   CP32(r0, HSR)
         bl    putn
         PRINT(" -\r\n")
@@ -561,7 +563,7 @@ data_abort:
         mcr   CP32(r0, DFSR)
         bl    putn
         PRINT(" -\r\n")
-        PRINT("- HSR -\r\n")
+        PRINT("- HSR ")
         mcr   CP32(r0, HSR)
         bl    putn
         PRINT(" -\r\n")

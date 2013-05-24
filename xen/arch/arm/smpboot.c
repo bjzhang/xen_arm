@@ -30,7 +30,7 @@
 #include <xen/irq.h>
 #include <asm/vfp.h>
 #include <asm/gic.h>
-//#include <asm/early_printk.h>
+#include <asm/early_printk.h>
 
 cpumask_t cpu_online_map;
 EXPORT_SYMBOL(cpu_online_map);
