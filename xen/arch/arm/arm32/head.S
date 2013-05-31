@@ -20,7 +20,6 @@
 #include <asm/config.h>
 #include <asm/page.h>
 #include <asm/processor-ca15.h>
-#include <asm/processor-ca7.h>
 #include <asm/asm_defns.h>
 
 #define ZIMAGE_MAGIC_NUMBER 0x016f2818
@@ -196,18 +195,8 @@ skip_bss:
         /* Is this a Cortex A15? */
         ldr   r1, =(CORTEX_A15_ID)
         teq   r0, r1
-        bne   test_ca7
         bleq  cortex_a15_init
-        PRINT("- cortex-a15 init done -\r\n")
-        b     cpu_init_done
-        /* Is this a Cortex A7? */
-test_ca7:
-        ldr   r1, =(CORTEX_A7_ID)
-        teq   r0, r1
-        bleq  cortex_a7_init
-        PRINT("- cortex-a7 init done -\r\n")
 
-cpu_init_done:
         /* Set up memory attribute type tables */
         ldr   r0, =MAIR0VAL
         ldr   r1, =MAIR1VAL
