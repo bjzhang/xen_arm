@@ -1,7 +1,8 @@
 /*
- * xen/arch/arm/proc-ca15.S
+ * xen/arch/arm/proc-v7.S
  *
- * Cortex A15 specific initializations
+ * rename from xen/arch/arm/proc-ca15.S
+ * arm v7 specific initializations
  *
  * Copyright (c) 2011 Citrix Systems.
  *
@@ -17,18 +18,18 @@
  */
 
 #include <asm/asm_defns.h>
+#include <asm/arm32/processor.h>
 #include <asm/processor-ca15.h>
+#include <asm/processor-ca7.h>
 
-.globl cortex_a15_init
-cortex_a15_init:
-        b     v7_init
+.globl v7_init
+v7_init:
+        /* Set up the SMP bit in ACTLR */
+        mrc   CP32(r0, ACTLR)
+        orr   r0, r0, #(ACTLR_V7_SMP) /* enable SMP bit */
+        mcr   CP32(r0, ACTLR)
+        mov   pc, lr
 
-        .section ".init.proc.info", #alloc, #execinstr
-        .type __v7_ca15mp_proc_info, #object
-__v7_ca15mp_proc_info:
-        .long 0x410FC0F0             /* Cortex-A15 */
-        bl    cortex_a15_init
-        .size __v7_ca15mp_proc_info, . - __v7_ca15mp_proc_info
 /*
  * Local variables:
  * mode: ASM

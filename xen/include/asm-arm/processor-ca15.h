@@ -1,9 +1,6 @@
 #ifndef __ASM_ARM_PROCESSOR_CA15_H
 #define __ASM_ARM_PROCESSOR_CA15_H
 
-
-#define CORTEX_A15_ID     (0x410FC0F0)
-
 /* ACTLR Auxiliary Control Register, Cortex A15 */
 #define ACTLR_CA15_SNOOP_DELAYED      (1<<31)
 #define ACTLR_CA15_MAIN_CLOCK         (1<<30)
@@ -26,7 +23,6 @@
 #define ACTLR_CA15_OPT                (1<<9)
 #define ACTLR_CA15_WFI                (1<<8)
 #define ACTLR_CA15_WFE                (1<<7)
-#define ACTLR_CA15_SMP                (1<<6)
 #define ACTLR_CA15_PLD                (1<<5)
 #define ACTLR_CA15_IP                 (1<<4)
 #define ACTLR_CA15_MICRO_BTB          (1<<3)

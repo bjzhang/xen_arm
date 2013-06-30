@@ -20,6 +20,7 @@
 #include <asm/config.h>
 #include <asm/page.h>
 #include <asm/processor-ca15.h>
+#include <asm/processor-ca7.h>
 #include <asm/asm_defns.h>
 
 #define ZIMAGE_MAGIC_NUMBER 0x016f2818
@@ -188,15 +189,26 @@ skip_bss:
 
         PRINT("- Setting up control registers -\r\n")
 
-        /* Read CPU ID */
+        /* Lookup Procesor Type */
+        /* r3 currrent proc info start*/
+        /* r4 cpuval*/
         mrc   CP32(r0, MIDR)
         ldr   r1, =(MIDR_MASK)
         and   r0, r0, r1
-        /* Is this a Cortex A15? */
-        ldr   r1, =(CORTEX_A15_ID)
-        teq   r0, r1
-        bleq  cortex_a15_init
+        ldr   r1, = __proc_info_start
+        add   r1, r1, r10
+        ldr   r2, = __proc_info_end
+        add   r2, r2, r10
+1:      ldr   r4, [r1]
+        teq   r0, r4
+        beq   2f
+        add   r1, r1, #PROCINFO_sizeof
+        cmp   r1, r2
+        blo   1b
+2:
+        mov   pc, r1, #PROCINFO_cpu_init
 
+cpu_init_done:
         /* Set up memory attribute type tables */
         ldr   r0, =MAIR0VAL
         ldr   r1, =MAIR1VAL
@@ -362,7 +374,6 @@ launch:
 fail:   PRINT("- Boot failed -\r\n")
 1:      wfe
         b     1b
-
 
 #ifdef EARLY_PRINTK
 /* Bring up the UART.
