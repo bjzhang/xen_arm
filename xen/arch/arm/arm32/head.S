@@ -206,7 +206,7 @@ skip_bss:
         cmp   r1, r2
         blo   1b
 2:
-        mov   pc, r1, #PROCINFO_cpu_init
+        add   pc, r1, #PROCINFO_cpu_init
 
 cpu_init_done:
         /* Set up memory attribute type tables */

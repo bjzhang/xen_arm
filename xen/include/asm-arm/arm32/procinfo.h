@@ -19,8 +19,8 @@
  * GNU General Public License for more details.
  */
 
-#ifndef __ASM_ARM_ARM32_PROCESSOR_H
-#define __ASM_ARM_ARM32_PROCESSOR_H
+#ifndef __ASM_ARM_ARM32_PROCINFO_H
+#define __ASM_ARM_ARM32_PROCINFO_H
 
 struct proc_info_list {
 	unsigned int		cpu_val;
