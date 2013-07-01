@@ -13,6 +13,7 @@ where mach is the name of the machine:
   - exynos5250: printk with the second UART
   - midway: printk with the pl011 on Calxeda Midway processors
   - fastmodel: printk on ARM Fastmodel software emulators
+  - sun6i: printk with 8250 on Allwinner A31 processors
 
 The base address and baud rate is hardcoded in xen/arch/arm/Rules.mk,
 see there when adding support for new machines.
