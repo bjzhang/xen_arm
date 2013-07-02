@@ -1,9 +1,10 @@
 /*
- * xen/arch/arm/proc-ca15.S
+ * xen/arch/arm/proc-ca7.S
  *
- * Cortex A15 specific initializations
+ * Cortex A7 specific initializations
  *
- * Copyright (c) 2011 Citrix Systems.
+ * Bamvor Jian Zhang <bjzhang@suse.com>
+ * Copyright (c) 2013 SUSE
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -17,18 +18,18 @@
  */
 
 #include <asm/asm_defns.h>
-#include <asm/processor-ca15.h>
+#include <asm/processor-ca7.h>
 
-.globl cortex_a15_init
-cortex_a15_init:
+.globl cortex_a7_init
+cortex_a7_init:
         b     v7_init
 
         .section ".init.proc.info", #alloc, #execinstr
-        .type __v7_ca15mp_proc_info, #object
-__v7_ca15mp_proc_info:
-        .long 0x410FC0F0             /* Cortex-A15 */
-        b     cortex_a15_init
-        .size __v7_ca15mp_proc_info, . - __v7_ca15mp_proc_info
+        .type __v7_ca7mp_proc_info, #object
+__v7_ca7mp_proc_info:
+        .long 0x410FC070             /* Cortex-A7 */
+        b     cortex_a7_init
+        .size __v7_ca7mp_proc_info, . - __v7_ca7mp_proc_info
 /*
  * Local variables:
  * mode: ASM

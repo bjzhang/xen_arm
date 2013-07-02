@@ -11,6 +11,7 @@
 #include <xen/bitops.h>
 #include <public/xen.h>
 #include <asm/current.h>
+#include <asm/arm32/procinfo.h>
 
 #define DEFINE(_sym, _val) \
     __asm__ __volatile__ ( "\n->" #_sym " %0 " #_val : : "i" (_val) )
@@ -62,6 +63,10 @@ void __dummy__(void)
    DEFINE(CPUINFO_sizeof, sizeof(struct cpu_info));
 
    OFFSET(VCPU_arch_saved_context, struct vcpu, arch.saved_context);
+
+   BLANK();
+   DEFINE(PROCINFO_sizeof, sizeof(struct proc_info_list));
+   OFFSET(PROCINFO_cpu_init, struct proc_info_list, cpu_init);
 }
 
 /*
