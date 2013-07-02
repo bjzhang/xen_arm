@@ -53,8 +53,7 @@
 
         .arm
 
-        /* This must be the very first address in the loaded image.
-         * It should be linked at XEN_VIRT_START, and loaded at any
+        /* This must be the very first address in the loaded image.  * It should be linked at XEN_VIRT_START, and loaded at any
          * 2MB-aligned address.  All of text+data+bss must fit in 2MB,
          * or the initial pagetable code below will need adjustment. */
         .global start
@@ -205,10 +204,12 @@ skip_bss:
         add   r1, r1, #PROCINFO_sizeof
         cmp   r1, r2
         blo   1b
+        PRINT("- Init func is not found -\r\n")
+1:      b     1b
 2:
+        adr   lr, 1f                            /* return (PIC) address */ /* FIXME: it only work while thumb2 is not enable in xen */
         add   pc, r1, #PROCINFO_cpu_init
-
-cpu_init_done:
+1:
         /* Set up memory attribute type tables */
         ldr   r0, =MAIR0VAL
         ldr   r1, =MAIR1VAL

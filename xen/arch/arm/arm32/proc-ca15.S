@@ -27,7 +27,7 @@ cortex_a15_init:
         .type __v7_ca15mp_proc_info, #object
 __v7_ca15mp_proc_info:
         .long 0x410FC0F0             /* Cortex-A15 */
-        bl    cortex_a15_init
+        b     cortex_a15_init
         .size __v7_ca15mp_proc_info, . - __v7_ca15mp_proc_info
 /*
  * Local variables:
