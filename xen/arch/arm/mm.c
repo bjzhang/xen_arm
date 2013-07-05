@@ -40,6 +40,8 @@
 #include <xsm/xsm.h>
 #include <xen/pfn.h>
 
+#include <asm/early_printk.h>
+
 struct domain *dom_xen, *dom_io, *dom_cow;
 
 /* Static start-of-day pagetables that we use before the
@@ -378,17 +380,22 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
     flush_xen_dcache(boot_ttbr);
     flush_xen_dcache_va_range((void*)dest_va, _end - _start);
 
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     WRITE_TTBR(boot_ttbr);
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
 
     /* Undo the temporary map */
     pte.bits = 0;
     write_pte(xen_second + second_table_offset(dest_va), pte);
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     flush_xen_text_tlb();
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
 
     /* Link in the fixmap pagetable */
     pte = mfn_to_xen_entry((((unsigned long) xen_fixmap) + phys_offset)
                            >> PAGE_SHIFT);
     pte.pt.table = 1;
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     write_pte(xen_second + second_table_offset(FIXMAP_ADDR(0)), pte);
     /*
      * No flush required here. Individual flushes are done in
@@ -414,6 +421,7 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
         write_pte(xen_xenmap + i, pte);
         /* No flush required here as page table is not hooked in yet. */
     }
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     pte = mfn_to_xen_entry((((unsigned long) xen_xenmap) + phys_offset)
                            >> PAGE_SHIFT);
     pte.pt.table = 1;
@@ -421,19 +429,28 @@ void __init setup_pagetables(unsigned long boot_phys_offset, paddr_t xen_paddr)
     /* TLBFLUSH and ISB would be needed here, but wait until we set WXN */
 
     /* From now on, no mapping may be both writable and executable. */
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     WRITE_SYSREG32(READ_SYSREG32(SCTLR_EL2) | SCTLR_WXN, SCTLR_EL2);
     /* Flush everything after setting WXN bit. */
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     flush_xen_text_tlb();
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
 
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
     per_cpu(xen_pgtable, 0) = boot_pgtable;
+    early_printk("%s<%d>: %p, %p\n", __FUNCTION__, __LINE__, &per_cpu(xen_dommap, 0), &per_cpu__xen_dommap);
     per_cpu(xen_dommap, 0) = xen_second +
         second_linear_offset(DOMHEAP_VIRT_START);
 
     /* Some of these slots may have been used during start of day and/or
      * relocation. Make sure they are clear now. */
-    memset(this_cpu(xen_dommap), 0, DOMHEAP_SECOND_PAGES*PAGE_SIZE);
-    flush_xen_dcache_va_range(this_cpu(xen_dommap),
+    early_printk("%s<%d>: %p, %p\n", __FUNCTION__, __LINE__, &per_cpu(xen_dommap, 0), per_cpu(xen_dommap, 0));
+    early_printk("%s<%d>: %u\n", __FUNCTION__, __LINE__, READ_SYSREG(TPIDR_EL2));
+    memset(per_cpu(xen_dommap, 0), 0, DOMHEAP_SECOND_PAGES*PAGE_SIZE);
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
+    flush_xen_dcache_va_range(per_cpu(xen_dommap, 0),
                               DOMHEAP_SECOND_PAGES*PAGE_SIZE);
+    early_printk("%s<%d>\n", __FUNCTION__, __LINE__);
 }
 
 int init_secondary_pagetables(int cpu)
