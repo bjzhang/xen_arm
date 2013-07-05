@@ -21,6 +21,7 @@
 #include <asm/page.h>
 #include <asm/platforms/vexpress.h>
 #include <asm/platforms/exynos5.h>
+#include <asm/platforms/sun6i.h>
 #include <asm/asm_defns.h>
 #include <asm/gic.h>
 
@@ -90,15 +91,23 @@ enter_hyp_mode:
         bic   r0, r0, #0xe           /* Clear EA, FIQ and IRQ */
         mcr   CP32(r0, SCR)
 
-        ldr   r2, =MACH_TYPE_SMDK5250   /* r4 := Arndale machine ID */
         /* By default load Arndale defaults values */
+        ldr   r2, =MACH_TYPE_SMDK5250   /* r4 := Arndale machine ID */
         ldr   r0, =EXYNOS5_TIMER_FREQUENCY  /* r0 := timer's frequency */
         ldr   r1, =EXYNOS5_GIC_BASE_ADDRESS /* r1 := GIC base address */
-        /* If it's not the Arndale machine ID, load VE values */
         teq   r5, r2
+        beq   board_set_done
+        /* If it's not the Arndale machine ID, try sun6i */
+        ldr   r2, =MACH_TYPE_SUN6I          /* r2 := sun6i machine ID */
+        ldr   r0, =SUN6I_TIMER_FREQUENCY    /* r0 := timer's frequency */
+        ldr   r1, =SUN6I_GIC_BASE_ADDRESS   /* r1 := GIC base address */
+        teq   r5, r2
+        beq   board_set_done
+        /* If it's not the sun6i machine ID, load VE values */
         ldrne r0, =V2M_TIMER_FREQUENCY
         ldrne r1, =V2M_GIC_BASE_ADDRESS
 
+board_set_done:
         /* Ugly: the system timer's frequency register is only
          * programmable in Secure state.  Since we don't know where its
          * memory-mapped control registers live, we can't find out the
